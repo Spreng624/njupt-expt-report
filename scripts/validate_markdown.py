@@ -41,15 +41,36 @@ def validate(markdown_path: Path) -> dict:
         raise ReportError("unclosed fenced code block")
 
     missing_images = []
+    image_paths: set[str] = set()
     for line in body.splitlines():
         match = re.match(r"!\[[^\]]*\]\(([^)]+)\)", line.strip())
         if not match:
             continue
-        target = (markdown_path.parent / match.group(1)).resolve()
+        relative = match.group(1).strip()
+        image_paths.add(relative)
+        target = (markdown_path.parent / relative).resolve()
         if not target.exists():
             missing_images.append(str(target))
+
+    shot_placeholders = re.findall(
+        r"<!--\s*SHOT:\s*([^|>]+?)(?:\s*\|[^>]*)?\s*-->",
+        body,
+    )
+    for relative in shot_placeholders:
+        relative = relative.strip()
+        if relative not in image_paths:
+            raise ReportError(
+                f"screenshot marker has no image line for: {relative}"
+            )
+        target = (markdown_path.parent / relative).resolve()
+        if not target.exists() and str(target) not in missing_images:
+            missing_images.append(str(target))
     if missing_images:
-        raise ReportError("missing images: " + ", ".join(missing_images))
+        raise ReportError(
+            "pending screenshots: "
+            + ", ".join(missing_images)
+            + ". Complete the experiment and save each screenshot at the listed path."
+        )
 
     return {
         "file": str(markdown_path),
@@ -57,6 +78,7 @@ def validate(markdown_path: Path) -> dict:
         "sections": [title for title, _ in sections],
         "section4_subsections": [title for title, _ in section4],
         "section5_subsections": [title for title, _ in section5],
+        "screenshot_placeholders": shot_placeholders,
         "errors": [],
     }
 

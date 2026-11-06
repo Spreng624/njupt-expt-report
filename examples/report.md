@@ -32,6 +32,10 @@ experiment_time: 2026-01-01
 | python-docx | 生成与修改 DOCX |
 | Microsoft Word | 导出 PDF 并进行最终查看 |
 
+<!-- SHOT: screenshots/01-python-version.png | 运行 python --version 并截取版本输出 -->
+
+![Python 版本核对](screenshots/01-python-version.png)
+
 **三、** **示例方法与结果**
 
 ### 3.1 转换步骤

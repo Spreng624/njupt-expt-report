@@ -11,6 +11,7 @@ njupt-expt-report/
 ├─ templates/实验报告模板.docx     # 固定版式快照
 ├─ scripts/validate_markdown.py    # 生成前校验 Markdown
 ├─ scripts/build_report.py         # Markdown → DOCX
+├─ scripts/capture_terminal.py     # 命令输出渲染为终端截图
 ├─ scripts/validate_docx.py        # 结构与字号校验
 ├─ scripts/render_preview.ps1      # Word 导出 PDF / PNG
 ├─ examples/report.md              # 可直接运行的示例
@@ -20,7 +21,33 @@ njupt-expt-report/
 
 ## 生成报告
 
-先生成并校验 Markdown，再转换 DOCX。不要直接修改生成的 DOCX。
+完整流程如下：
+
+1. Agent 先完成实验并记录真实命令、输出和截图。
+2. 编写 Markdown，并在需要截图的位置加入 `<!-- SHOT: ... -->` 和图片链接。
+3. 用户按 Markdown 复现实验，并在指定路径放入截图。
+4. Markdown 截图校验通过后，再转换为 DOCX。
+5. 不要直接修改生成的 DOCX；需要调整时修改 Markdown 后重新生成。
+
+终端截图示例：
+
+```powershell
+python scripts/capture_terminal.py `
+  --command "ip -4 addr show eth1" `
+  --shell wsl `
+  --title "确认实验接口" `
+  --output screenshots/01-interface.png
+```
+
+Markdown 中的截图点：
+
+```markdown
+<!-- SHOT: screenshots/01-interface.png | 运行 ip -4 addr show eth1 -->
+
+![确认实验接口](screenshots/01-interface.png)
+```
+
+缺少截图时 `validate_markdown.py` 会停止转换并列出待补文件。
 
 一键完成 Markdown 校验、DOCX 转换和 DOCX 校验：
 

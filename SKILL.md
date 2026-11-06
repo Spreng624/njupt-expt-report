@@ -13,22 +13,37 @@ The template is authoritative. Conversion must replace placeholders and insert b
 
 ## Mandatory Workflow
 
-1. Author the experiment report in Markdown.
-2. Put all cover metadata in YAML front matter.
-3. Finish all experiment content before creating the DOCX.
-4. Run:
+1. Execute the experiment and collect real terminal evidence.
+2. Write the full Markdown report with YAML metadata.
+3. At each evidence point, leave a screenshot marker and an image line:
+   ```markdown
+   <!-- SHOT: screenshots/01-interface.png | 运行 ip -4 addr show eth1 -->
+   ![确认实验接口](screenshots/01-interface.png)
+   ```
+4. If the Agent's run is the intended evidence, capture the terminal output directly:
+   ```powershell
+   python scripts/capture_terminal.py `
+     --command "ip -4 addr show eth1" `
+     --shell wsl `
+     --title "确认实验接口" `
+     --output screenshots/01-interface.png
+   ```
+5. Give the completed Markdown to the user for reproduction. The user follows the commands
+   and saves replacement screenshots at the listed relative paths.
+6. Run:
    ```powershell
    python scripts/validate_markdown.py path/to/report.md
    ```
-5. Convert only after Markdown validation passes:
+   Missing screenshots are a hard stop. Do not export DOCX yet.
+7. Convert only after Markdown validation passes:
    ```powershell
    python scripts/build_report.py path/to/report.md -o output/report.docx
    ```
-6. Validate the generated document:
+8. Validate the generated document:
    ```powershell
    python scripts/validate_docx.py output/report.docx
    ```
-7. Render and inspect the DOCX before delivery:
+9. Render and inspect the DOCX before delivery:
    ```powershell
    powershell -ExecutionPolicy Bypass -File scripts/render_preview.ps1 `
      -InputDocx output/report.docx `
@@ -52,6 +67,8 @@ powershell -ExecutionPolicy Bypass -File convert.ps1 `
 - Section 6 remains empty in Markdown; the template supplies the instructor evaluation table.
 - Do not invent experimental results, screenshots, flags, or measurements.
 - Read [references/markdown-authoring.md](references/markdown-authoring.md) before writing or repairing a report.
+- Read [references/terminal-capture.md](references/terminal-capture.md) when a terminal screenshot
+  or screenshot placeholder is needed.
 
 ## Conversion Boundaries
 

@@ -77,6 +77,23 @@ Supported inline syntax:
 
 Use relative image paths. A missing image is a hard validation error.
 
+## Screenshot Handoff
+
+The Agent executes the experiment first and writes a complete report. For every evidence point,
+leave a named screenshot placeholder:
+
+```markdown
+<!-- SHOT: screenshots/01-interface.png | 运行 ip -4 addr show eth1 -->
+
+![确认实验接口](screenshots/01-interface.png)
+```
+
+The user reproduces the command and saves their screenshot at the exact relative path. The
+Markdown validator reports every pending screenshot before DOCX conversion.
+
+For terminal-only experiments, the Agent or user may generate the PNG directly with
+`scripts/capture_terminal.py`. See [terminal-capture.md](terminal-capture.md).
+
 ## Quality Gate
 
 Before conversion:
